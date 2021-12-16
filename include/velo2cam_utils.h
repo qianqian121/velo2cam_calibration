@@ -29,6 +29,8 @@
 #define PCL_NO_PRECOMPILE
 #define DEBUG 0
 
+#include <pcl/io/io.h>
+#include <pcl/point_types.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/extract_clusters.h>
 
@@ -39,11 +41,19 @@
 using namespace std;
 
 namespace Velodyne {
+//struct Point {
+//  PCL_ADD_POINT4D;     // quad-word XYZ
+//  float intensity;     ///< laser intensity reading
+//  std::uint16_t ring;  ///< laser ring number
+//  float range;
+//  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // ensure proper alignment
+//} EIGEN_ALIGN16;
 struct Point {
   PCL_ADD_POINT4D;     // quad-word XYZ
-  float intensity;     ///< laser intensity reading
-  std::uint16_t ring;  ///< laser ring number
-  float range;
+    uint8_t intensity;
+    uint16_t ring = 0;
+    double timestamp = 0;
+    float range;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // ensure proper alignment
 } EIGEN_ALIGN16;
 
@@ -66,29 +76,35 @@ vector<vector<Point *>> getRings(pcl::PointCloud<Velodyne::Point> &pc,
 
 // all intensities to range min-max
 void normalizeIntensity(pcl::PointCloud<Point> &pc, float minv, float maxv) {
-  float min_found = INFINITY;
-  float max_found = -INFINITY;
-
-  for (pcl::PointCloud<Point>::iterator pt = pc.points.begin();
-       pt < pc.points.end(); pt++) {
-    max_found = max(max_found, pt->intensity);
-    min_found = min(min_found, pt->intensity);
-  }
-
-  for (pcl::PointCloud<Point>::iterator pt = pc.points.begin();
-       pt < pc.points.end(); pt++) {
-    pt->intensity =
-        (pt->intensity - min_found) / (max_found - min_found) * (maxv - minv) +
-        minv;
-  }
+//  float min_found = INFINITY;
+//  float max_found = -INFINITY;
+//
+//  for (pcl::PointCloud<Point>::iterator pt = pc.points.begin();
+//       pt < pc.points.end(); pt++) {
+//    max_found = max(max_found, pt->intensity);
+//    min_found = min(min_found, pt->intensity);
+//  }
+//
+//  for (pcl::PointCloud<Point>::iterator pt = pc.points.begin();
+//       pt < pc.points.end(); pt++) {
+//    pt->intensity =
+//        (pt->intensity - min_found) / (max_found - min_found) * (maxv - minv) +
+//        minv;
+//  }
 }
 }  // namespace Velodyne
 
+//POINT_CLOUD_REGISTER_POINT_STRUCT(Velodyne::Point,
+//                                  (float, x, x)(float, y, y)(float, z, z)(
+//                                      float, intensity,
+//                                      intensity)(std::uint16_t, ring,
+//                                                 ring)(float, range, range));
 POINT_CLOUD_REGISTER_POINT_STRUCT(Velodyne::Point,
-                                  (float, x, x)(float, y, y)(float, z, z)(
-                                      float, intensity,
-                                      intensity)(std::uint16_t, ring,
-                                                 ring)(float, range, range));
+                                  (float, x, x)(float, y, y)(float, z, z)
+                                  (uint8_t, intensity, intensity)
+                                  (uint16_t, ring, ring)
+                                  (double, timestamp, timestamp)
+                                  (float, range, range));
 
 void sortPatternCenters(pcl::PointCloud<pcl::PointXYZ>::Ptr pc,
                         vector<pcl::PointXYZ> &v) {
