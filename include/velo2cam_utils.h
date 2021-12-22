@@ -27,7 +27,7 @@
 #define velo2cam_utils_H
 
 #define PCL_NO_PRECOMPILE
-#define DEBUG 0
+#define DEBUG 1 
 
 #include <pcl/io/io.h>
 #include <pcl/point_types.h>
